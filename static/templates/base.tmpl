@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+  <div class="main">
+    <nav>
+      <ul>
+        {{range .Topics}}
+          <li><a href="/{{ . }}">{{ . }}</a></li>
+        {{end}}
+      </ul>
+    </nav>
+    <article>
+      {{ .Page  }}
+    </article>
+  </div>
+</body>
+</html>
