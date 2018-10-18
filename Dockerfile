@@ -4,7 +4,6 @@ COPY main.go .
 COPY embed.go .
 COPY static .
 COPY go.mod .
-COPY go.sum .
 RUN CGO_ENABLED=0 GOOS=linux go generate
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o fiki
 
