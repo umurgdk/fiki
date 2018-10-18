@@ -1,0 +1,16 @@
+{{ if .Page }}
+  {{ .Page  }}
+{{ else }}
+  <h1>{{ title .Title }}</h1>
+{{ end }}
+
+{{ if len .Children | le 1 }}
+  <h2>Sub Pages</h2>
+  <ul>
+    {{ range .Children }}
+      {{ if ne . "index" }}
+        <li><a href="/{{ $.Path }}/{{ . }}">{{ title . }}</a></li>
+      {{ end  }}
+    {{ end }}
+  </ul>
+{{ end }}

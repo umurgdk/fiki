@@ -11,11 +11,18 @@
       <strong class="title">TOPICS</strong>
       <ul>
         {{ range .Topics }}
-          <li><a href="/{{ . }}">{{ . }}</a></li>
+          <li><a href="/{{ . }}">{{ title . }}</a></li>
         {{ end }}
       </ul>
     </nav>
     <article>
+      {{ if len .Breadcrumb | le 1 }}
+        <ul class="breadcrumb">
+          {{ range .Breadcrumb }}
+            <li><a href="/{{ . }}">{{ base . | title }}</a></li>
+          {{ end }}
+        </ul>
+      {{ end }}
       {{ .Page  }}
     </article>
   </div>

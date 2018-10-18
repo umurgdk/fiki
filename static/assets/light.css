@@ -2,12 +2,20 @@ body, html {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  font-family: sans;
+  font-family: 'Open Sans', 'Noto Sans', 'Helvetica Neue', sans;
   font-size: 100%;
 }
 
 body, h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
+}
+
+a {
+  color: #35c;
+}
+
+a:visited {
+  color: #86a;
 }
 
 .main {
@@ -48,7 +56,8 @@ nav ul li {
   padding-left: 16px;
 }
 
-nav ul li a {
+nav ul li a,
+nav ul li a:visited {
   display: block;
   text-decoration: none;
   color: #242734;
@@ -69,7 +78,7 @@ article {
 
 @media (min-width: 43.75em) {
   article {
-    font-size: calc(12px + (22 - 14) * ((100vw - 300px) / (1600 - 300)));
+    font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1600 - 300)));
     /*font-size: 1em;*/
     /* equivalent to 16px */
     line-height: 1.375;
@@ -82,3 +91,28 @@ pre {
   background: #f5f5f5;
   padding: 16px 20px;
 }
+
+.breadcrumb {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.breadcrumb li {
+  display: inline-block;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: #888;
+  font-size: 14px;
+}
+
+.breadcrumb a:before {
+  content: '/ ';
+}
+
+.breadcrumb a:hover {
+  color: #68c;
+}
+

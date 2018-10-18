@@ -30,6 +30,10 @@ func main() {
 	fmt.Fprintf(&buf, "var %s = map[string][]byte {\n", varName)
 
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if info == nil {
+			return nil
+		}
+
 		if info.IsDir() {
 			return nil
 		}
