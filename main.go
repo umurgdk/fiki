@@ -248,6 +248,10 @@ func fetchTarball(username, repo string) error {
 
 		// Skip the repo root folder
 		parts := strings.SplitN(header.Name, "/", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
 		entryPath := parts[1]
 		entryPath = strings.TrimSuffix(entryPath, ".md")
 
@@ -255,11 +259,12 @@ func fetchTarball(username, repo string) error {
 		// case of it is both directory and located in the root, add it to the
 		// topics collections
 		if header.Typeflag == tar.TypeDir {
-			if !strings.ContainsRune(entryPath, '/') {
-				topics = append(topics, entryPath)
+			dir := strings.TrimSuffix(entryPath, "/")
+			if !strings.ContainsRune(dir, '/') {
+				topics = append(topics, dir)
 			} else {
-				dir := filepath.Dir(entryPath)
-				hierarchy[dir] = append(hierarchy[dir], filepath.Base(entryPath))
+				parentDir := filepath.Dir(dir)
+				hierarchy[parentDir] = append(hierarchy[parentDir], filepath.Base(dir))
 			}
 
 			continue

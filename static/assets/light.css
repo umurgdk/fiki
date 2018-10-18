@@ -70,6 +70,7 @@ nav ul li a:hover {
 }
 
 article {
+  max-width: 850px;
   font-size: 1em;
   /* equivalent to 16px */
   line-height: 1.25;
