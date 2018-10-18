@@ -2,7 +2,6 @@ FROM golang:1.11
 WORKDIR /go/src/github.com/umurgdk/fiki/
 COPY main.go .
 COPY embed.go .
-COPY assets .
 COPY static .
 COPY go.mod .
 COPY go.sum .
