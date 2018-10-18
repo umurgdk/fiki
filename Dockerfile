@@ -2,7 +2,7 @@ FROM golang:1.11
 WORKDIR /fiki/
 COPY main.go .
 COPY embed.go .
-COPY static .
+COPY static ./static
 COPY go.mod .
 RUN CGO_ENABLED=0 GOOS=linux go generate
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o fiki
