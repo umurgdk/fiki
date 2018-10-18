@@ -23,7 +23,7 @@ import (
 //go:generate go run embed.go Templates static/templates
 //go:generate go run embed.go Public static/assets
 
-const host = "localhost"
+const host = "0.0.0.0"
 const port = 8080
 
 var hierarchy = make(map[string][]string)
