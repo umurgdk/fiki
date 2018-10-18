@@ -1,4 +1,5 @@
 // +build ignore
+
 package main
 
 import (
@@ -33,6 +34,10 @@ func main() {
 			return nil
 		}
 
+		if info.Name()[0] == '.' {
+			return nil
+		}
+
 		content, err := ioutil.ReadFile(path)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -40,7 +45,6 @@ func main() {
 		}
 
 		relativeName := strings.TrimPrefix(path, root)
-		relativeName = strings.TrimSuffix(relativeName, filepath.Ext(path))
 		fmt.Fprintf(&buf, "  \"%s\": []byte(\"", relativeName)
 		for _, b := range content {
 			fmt.Fprintf(&buf, "\\x%02x", b)

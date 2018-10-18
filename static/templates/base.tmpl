@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <link rel="stylesheet" href="/theme/light.css">
 </head>
 <body>
   <div class="main">
     <nav>
+      <strong class="title">TOPICS</strong>
       <ul>
-        {{range .Topics}}
+        {{ range .Topics }}
           <li><a href="/{{ . }}">{{ . }}</a></li>
-        {{end}}
+        {{ end }}
       </ul>
     </nav>
     <article>
