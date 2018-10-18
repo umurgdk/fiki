@@ -1,3 +1,4 @@
 fiki
 /assets
 *.swp
+/go.sum
