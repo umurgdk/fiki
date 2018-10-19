@@ -10,9 +10,27 @@
     <nav>
       <strong class="title">TOPICS</strong>
       <ul>
-        {{ range .Topics }}
-          <li><a href="/{{ . }}">{{ title . }}</a></li>
-        {{ end }}
+        {{- block "tree" .Tree -}}
+          <li>
+          {{- if ne .Name "root" -}}
+            <div class="tree-name">
+              {{- if .Page -}}
+                <i class="page"></i>
+              {{- else -}}
+                <i class="directory"></i>
+              {{- end -}}
+              <a href="/{{ .Path }}" class="{{ if isActive .Path }}active{{ end }}">{{ title .Name }}</a>
+            </div>
+          {{- end -}}
+          {{- if ge (len .Children) 1 -}}
+            <ul>
+            {{- range .Children -}}
+              {{- template "tree" . -}}
+            {{- end -}}
+            </ul>
+          {{- end -}}
+          </li>
+        {{- end -}}
       </ul>
     </nav>
     <article>

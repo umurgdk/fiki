@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/russross/blackfriday"
 	"github.com/umurgdk/fiki/assets"
@@ -28,16 +29,43 @@ const port = 8080
 
 var hierarchy = make(map[string][]string)
 
-var pageTree = make(map[string]string)
+var pageTree *TreeNode
 var pages = make(map[string]string)
 var templates = make(map[string]*template.Template)
 var topics []string
+
+type TreeNode struct {
+	Name     string
+	Page     bool
+	Path     string
+	Children map[string]*TreeNode
+}
+
+func newTreeNode(name string, path string, page bool) *TreeNode {
+	return &TreeNode{
+		Name:     name,
+		Path:     path,
+		Page:     page,
+		Children: make(map[string]*TreeNode),
+	}
+}
 
 var local = flag.String("local", "", "Path to a local directory to serve from it instead of a git repository")
 
 var tmplFuncMap = template.FuncMap{
 	"title": strings.Title,
 	"base":  filepath.Base,
+	"isActive": func(path string) bool {
+		return false
+	},
+}
+
+func withLog(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		handler(w, r)
+		log.Printf("%s %s took: %v\n", r.Method, r.URL.Path, time.Since(start))
+	}
 }
 
 func main() {
@@ -49,6 +77,7 @@ func main() {
 		templates[name] = template.Must(tmpl, err)
 	}
 
+	pageTree = newTreeNode("root", "", false)
 	if *local == "" {
 		log.Println("fetching wiki tarball...")
 		if err := fetchTarball("umurgdk", "wiki"); err != nil {
@@ -65,10 +94,9 @@ func main() {
 
 	log.Printf("%d pages cached\n", len(pages))
 	log.Printf("topcis: %v\n", topics)
-	log.Printf("hierarchy: %v\n", hierarchy)
 
-	http.HandleFunc("/theme/", stripPrefix("/theme", themeHandler))
-	http.HandleFunc("/", pageHandler)
+	http.HandleFunc("/theme/", stripPrefix("/theme", withLog(themeHandler)))
+	http.HandleFunc("/", withLog(pageHandler))
 
 	hostPort := fmt.Sprintf("%s:%d", host, port)
 	log.Println("start listening at ", hostPort)
@@ -128,16 +156,22 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "text/html;charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err := templates["base.tmpl"].Execute(w, struct {
+	err := templates["base.tmpl"].Funcs(template.FuncMap{
+		"isActive": func(p string) bool {
+			return p == path
+		},
+	}).Execute(w, struct {
 		Topics     []string
 		Title      string
 		Page       template.HTML
 		Breadcrumb []string
+		Tree       *TreeNode
 	}{
 		Topics:     topics,
 		Title:      filepath.Base(path),
 		Page:       template.HTML(page),
 		Breadcrumb: breadcrumb,
+		Tree:       pageTree,
 	})
 
 	if err != nil {
@@ -211,7 +245,8 @@ func readLocalDirectory(root string) error {
 		fileName := filepath.Base(pagePath)
 		if fileName != "index" {
 			dir := filepath.Dir(relPath)
-			hierarchy[dir] = append(hierarchy[dir], filepath.Base(pagePath))
+			hierarchy[dir] = append(hierarchy[dir], fileName)
+			treeAppend(dir, fileName)
 		}
 
 		return nil
@@ -304,6 +339,25 @@ func fetchTarball(username, repo string) error {
 
 	pages = newPages
 	return nil
+}
+
+func treeAppend(path, name string) {
+	parts := strings.Split(path, "/")
+	node := pageTree
+	for i, dir := range parts {
+		child, ok := node.Children[dir]
+		if !ok {
+			childPath := filepath.Join(parts[:i+1]...)
+			node.Children[dir] = newTreeNode(dir, childPath, false)
+			node = node.Children[dir]
+			continue
+		}
+
+		node = child
+	}
+
+	fullPath := filepath.Join(path, name)
+	node.Children[name] = newTreeNode(name, fullPath, true)
 }
 
 func stripPrefix(prefix string, handler http.HandlerFunc) http.HandlerFunc {
