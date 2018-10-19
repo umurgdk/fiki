@@ -260,6 +260,10 @@ func fetchTarball(username, repo string) error {
 		// topics collections
 		if header.Typeflag == tar.TypeDir {
 			dir := strings.TrimSuffix(entryPath, "/")
+			if dir == "" {
+				continue
+			}
+
 			if !strings.ContainsRune(dir, '/') {
 				topics = append(topics, dir)
 			} else {
