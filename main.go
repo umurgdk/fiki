@@ -95,6 +95,7 @@ func main() {
 	log.Printf("%d pages cached\n", len(pages))
 	log.Printf("topcis: %v\n", topics)
 
+	http.HandleFunc("/_githook", withLog(webhookHandler))
 	http.HandleFunc("/theme/", stripPrefix("/theme", withLog(themeHandler)))
 	http.HandleFunc("/", withLog(pageHandler))
 
@@ -200,6 +201,11 @@ func themeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func webhookHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	go fetchTarball("umurgdk", "wiki")
+}
+
 func readLocalDirectory(root string) error {
 	filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
 		if fpath == root {
@@ -303,7 +309,9 @@ func fetchTarball(username, repo string) error {
 				topics = append(topics, dir)
 			} else {
 				parentDir := filepath.Dir(dir)
-				hierarchy[parentDir] = append(hierarchy[parentDir], filepath.Base(dir))
+				if parentDir != "." {
+					hierarchy[parentDir] = append(hierarchy[parentDir], filepath.Base(dir))
+				}
 			}
 
 			continue
@@ -334,6 +342,7 @@ func fetchTarball(username, repo string) error {
 		if fileName != "index" {
 			dir := filepath.Dir(entryPath)
 			hierarchy[dir] = append(hierarchy[dir], filepath.Base(entryPath))
+			treeAppend(dir, filepath.Base(entryPath))
 		}
 	}
 
