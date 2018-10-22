@@ -119,6 +119,9 @@ article {
 code {
   font-size: 14px;
   background: #f5f5f5;
+}
+
+pre code {
   padding: 16px 20px;
 }
 
